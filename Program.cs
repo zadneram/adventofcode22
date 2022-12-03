@@ -11,7 +11,88 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            Day1();
+            Day3_Part2();
+        }
+
+        public static void Day3_Part2()
+        {
+            string inputFile = @".\Day3.txt";
+            int totalPriority = 0;
+
+            using (FileStream fs = File.OpenRead(inputFile))
+            {
+                using (StreamReader sr = new StreamReader(fs))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        string elf1 = sr.ReadLine();
+                        string elf2 = sr.ReadLine();
+                        string elf3 = sr.ReadLine();
+
+                        var badgeType = elf1.Intersect(elf2)
+                                            .Intersect(elf3)
+                                            .Single();
+
+                        int priority;
+                        if (Char.IsLower(badgeType))
+                        {
+                            // Lower 'a' is ASCII 97 so subtract 96 to get 1 as priority.
+                            priority = (int)badgeType - 96;
+                        }
+                        else
+                        {
+                            // Upper 'A' is ASCII 65 so subtract 38 to get 27 as priority.
+                            priority = (int)badgeType - 38;
+                        }
+
+                        totalPriority += priority;
+                    }
+                }
+            }
+
+            Console.WriteLine(totalPriority);
+
+            Console.ReadKey();
+        }
+
+        public static void Day3_Part1()
+        {
+            string inputFile = @".\Day3.txt";
+            int totalPriority = 0;
+
+            using (FileStream fs = File.OpenRead(inputFile))
+            {
+                using (StreamReader sr = new StreamReader(fs))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        string line = sr.ReadLine();
+                        int halfWay = line.Length / 2;
+                        string comp1 = line.Substring(0, halfWay);
+                        string comp2 = line.Substring(halfWay);
+
+                        var commonItem = comp1.Intersect(comp2).Single();
+
+                        int priority;
+                        if (Char.IsLower(commonItem))
+                        {
+                            // Lower 'a' is ASCII 97 so subtract 96 to get 1 as priority.
+                            priority = (int)commonItem - 96;
+                        }
+                        else
+                        {
+                            // Upper 'A' is ASCII 65 so subtract 38 to get 27 as priority.
+                            priority = (int)commonItem - 38;
+                        }
+
+                        totalPriority += priority;
+                    }
+                }
+            }
+
+            Console.WriteLine(totalPriority);
+
+            Console.ReadKey();
         }
 
         public static void Day1()
