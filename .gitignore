@@ -3,3 +3,4 @@
 /bin/*
 .vs/AdventOfCode2022/v16/.suo
 /AdventOfCode2022.csproj.user
+/AppSettings.config

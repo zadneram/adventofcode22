@@ -11,7 +11,71 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            Day3_Part2();
+            string result = Day4_Part2();
+            Console.WriteLine(result);
+            Console.ReadKey();
+        }
+
+        public static string Day4_Part2()
+        {
+            int intersectionCount = 0;
+            foreach (var line in Utilities.GetInputForDay(4))
+            {
+                List<int> elf1Sections, elf2Sections;
+                GetDay4Sections(line, out elf1Sections, out elf2Sections);
+
+                bool isIntersection = elf1Sections.Intersect(elf2Sections).Any();
+                if (isIntersection)
+                {
+                    intersectionCount++;
+                }
+            }
+
+            return intersectionCount.ToString();
+        }
+
+        public static string Day4_Part1()
+        {
+            int subsetCount = 0;
+            foreach (var line in Utilities.GetInputForDay(4))
+            {
+                List<int> elf1Sections, elf2Sections;
+                GetDay4Sections(line, out elf1Sections, out elf2Sections);
+
+                bool isSubset = !elf1Sections.Except(elf2Sections).Any();
+                isSubset |= !elf2Sections.Except(elf1Sections).Any();
+
+                if (isSubset)
+                {
+                    subsetCount++;
+                }
+            }
+
+            return subsetCount.ToString();
+        }
+
+        private static void GetDay4Sections(string line, out List<int> elf1Sections, out List<int> elf2Sections)
+        {
+            var elfs = line.Split(',');
+            var elf1StartEnd = elfs[0].Split('-');
+            int elf1Start = int.Parse(elf1StartEnd[0]);
+            int elf1End = int.Parse(elf1StartEnd[1]);
+
+            elf1Sections = new List<int>();
+            for (int i = elf1Start; i <= elf1End; i++)
+            {
+                elf1Sections.Add(i);
+            }
+
+            var elf2StartEnd = elfs[1].Split('-');
+            int elf2Start = int.Parse(elf2StartEnd[0]);
+            int elf2End = int.Parse(elf2StartEnd[1]);
+
+            elf2Sections = new List<int>();
+            for (int i = elf2Start; i <= elf2End; i++)
+            {
+                elf2Sections.Add(i);
+            }
         }
 
         public static void Day3_Part2()
