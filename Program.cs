@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,9 +13,89 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            string result = Day4_Part2();
+            string result = Day5_Part1();
             Console.WriteLine(result);
             Console.ReadKey();
+        }
+
+        public static string Day5_Part1()
+        {
+            List<string> stackLines = new List<string>();
+            List<string> moves = new List<string>();
+            Dictionary<int, Stack<char>> stacks = new Dictionary<int, Stack<char>>();
+
+            foreach (var line in Utilities.GetInputForDay(5))
+            {
+                if (line.StartsWith("["))
+                {
+                    stackLines.Add(line);
+                }
+                else if (line.StartsWith("move"))
+                {
+                    moves.Add(line);
+                }
+            }
+
+            stacks = ProcessStartingStacks(stackLines);
+            ProcessMoves(stacks, moves);
+
+            StringBuilder sb = new StringBuilder(9);
+            for (int i = 1; i <= stacks.Count; i++)
+            {
+                sb.Append(stacks[i].First());
+            }
+
+            return sb.ToString();
+        }
+
+        private static void ProcessMoves(Dictionary<int, Stack<char>> stacks, List<string> moves)
+        {
+            foreach (var move in moves)
+            {
+                var words = move.Split(' ');
+                int numberToMove = int.Parse(words[1]);
+                int from = int.Parse(words[3]);
+                int to = int.Parse(words[5]);
+
+                List<char> cratesToMove = new List<char>();
+                for (int i = 0; i < numberToMove; i++)
+                {
+                    cratesToMove.Add(stacks[from].Pop());
+                }
+
+                for (int j = cratesToMove.Count; j > 0; j--)
+                {
+                    stacks[to].Push(cratesToMove[j-1]);
+                }
+            }
+        }
+
+        private static Dictionary<int, Stack<char>> ProcessStartingStacks(List<string> stackLines)
+        {
+            Dictionary<int, Stack<char>> stacks = new Dictionary<int, Stack<char>>();
+
+            for (int s = stackLines.Count - 1; s >= 0; s--)
+            {
+                string line = stackLines[s];
+
+                // Items start at index 1 and are 4 apart
+                for (int i = 1; i < line.Length; i += 4)
+                {
+                    if (line[i] != ' ')
+                    {
+                        int stackNo = (int)Math.Floor(i / 4m) + 1;
+                        if (stacks.TryGetValue(stackNo, out Stack<char> stack) == false)
+                        {
+                            stack = new Stack<char>();
+                            stacks.Add(stackNo, stack);
+                        }
+
+                        stack.Push(line[i]);
+                    }
+                }
+            }
+
+            return stacks;
         }
 
         public static string Day4_Part2()
