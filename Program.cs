@@ -11,9 +11,39 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            string result = Day4_Part2();
+            string result = Day6(uniqueCharsRequired: 14);
             Console.WriteLine(result);
             Console.ReadKey();
+        }
+
+        public static string Day6(int uniqueCharsRequired)
+        {
+            List<char> marker = new List<char>(uniqueCharsRequired);
+            foreach (var line in Utilities.GetInputForDay(6))
+            {
+                for (int i = 0; i < line.Length; i++)
+                {
+                    char nextChar = line[i];
+                    if (marker.Any(m => m == nextChar))
+                    {
+                        // Duplicate detected
+                        int firstDupe = marker.IndexOf(nextChar);
+                        marker = marker.GetRange(firstDupe + 1, marker.Count - firstDupe - 1);
+                        marker.Add(nextChar);
+                        continue;
+                    }
+                    else
+                    {
+                        marker.Add(nextChar);
+                        if (marker.Count == uniqueCharsRequired)
+                        {
+                            return (i + 1).ToString();
+                        }
+                    }
+                }
+            }
+
+            return "No solution found";
         }
 
         public static string Day4_Part2()
