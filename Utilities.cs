@@ -38,6 +38,20 @@ namespace AdventOfCode2022
             }
         }
 
+        public static IEnumerable<string> GetInputFromFile(int day, bool example = true)
+        {
+            using (FileStream fs = System.IO.File.OpenRead($@".\Day{day}{(example ? "Ex" : String.Empty)}.txt"))
+            {
+                using (StreamReader sr = new StreamReader(fs))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        yield return sr.ReadLine();
+                    }
+                }
+            }
+        }
+
         private static CookieContainer GetCookieContainer()
         {
             var cookieContainer = new CookieContainer();

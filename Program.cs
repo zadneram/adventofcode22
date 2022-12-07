@@ -13,9 +13,181 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            string result = Day6(uniqueCharsRequired: 14);
+            string result = Day7_Part2();
             Console.WriteLine(result);
             Console.ReadKey();
+        }
+
+        public static string Day7_Part2()
+        {
+            List<int> dirSizes = new List<int>();
+            Stack<Pair<string, int>> dirs = new Stack<Pair<string, int>>();
+            string currentDir = null;
+            int currentDirSize = 0;
+
+            foreach (string line in Utilities.GetInputForDay(7))
+            //foreach (string line in Utilities.GetInputFromFile(day: 7, example: true))
+            {
+                if (line.StartsWith("$ cd "))
+                {
+                    if (dirs.Count > 0)
+                    {
+                        // When changing dir (up or down) set the size of the current dir first to whatever the sum of the file sizes is.
+                        dirs.Peek().Item2 = currentDirSize;
+                    }
+
+                    if (line.StartsWith("$ cd .."))
+                    {
+                        ChangeDirUp();
+
+                        currentDirSize = dirs.Peek().Item2;
+                    }
+                    else
+                    {
+                        currentDir = line.Substring(5);
+                        currentDirSize = 0;
+                        dirs.Push(new Pair<string, int>(currentDir, currentDirSize));
+                    }
+                }
+                else if (line.StartsWith("$ ls"))
+                {
+                    continue;
+                }
+                else if (line.StartsWith("dir "))
+                {
+                    continue;
+                }
+                else
+                {
+                    // It's a file with a size.
+                    currentDirSize += int.Parse(line.Split(' ')[0]);
+                }
+            }
+
+            // Pop any remaining dirs off the stack, i.e. go back up to root.
+            while (dirs.Any())
+            {
+                if (dirs.Count > 0)
+                {
+                    // When changing dir (up or down) set the size of the current dir first to whatever the sum of the file sizes is.
+                    dirs.Peek().Item2 = currentDirSize;
+                }
+
+                ChangeDirUp();
+
+                if (dirs.Count > 0)
+                {
+                    currentDirSize = dirs.Peek().Item2;
+                }
+            }
+
+            int totalSpace = 70000000;
+            int requiredSpaceForUpdate = 30000000;
+            int totalUsedSpace = dirSizes.Last();
+            int minSpaceToFree = requiredSpaceForUpdate - (totalSpace - totalUsedSpace);
+            int sizeOfSmallestDirToDelete = dirSizes.OrderBy(x => x)
+                                                    .First(x => x >= minSpaceToFree);
+
+            return sizeOfSmallestDirToDelete.ToString();
+
+            void ChangeDirUp()
+            {
+                // Pop the current directory off the stack.
+                dirs.Pop();
+
+                // Add currrent dir size to it's parent directory when going back up to it
+                if (dirs.Any())
+                {
+                    dirs.Peek().Item2 += currentDirSize;
+                }
+
+                // Track the size of each directory.
+                dirSizes.Add(currentDirSize);
+            }
+        }
+
+        public static string Day7_Part1()
+        {
+            int totalSizeOfDirsAtMost100k = 0;
+            Stack<Pair<string, int>> dirs = new Stack<Pair<string, int>>();
+            string currentDir = null;
+            int currentDirSize = 0;
+
+            //foreach (string line in Utilities.GetInputForDay(7))
+            foreach (string line in Utilities.GetInputFromFile(day: 7, example: true))
+            {
+                if (line.StartsWith("$ cd "))
+                {
+                    if (dirs.Count > 0)
+                    {
+                        // When changing dir (up or down) set the size of the current dir first to whatever the sum of the file sizes is.
+                        dirs.Peek().Item2 = currentDirSize;
+                    }
+
+                    if (line.StartsWith("$ cd .."))
+                    {
+                        ChangeDirUp();
+
+                        currentDirSize = dirs.Peek().Item2;
+                    }
+                    else
+                    {
+                        currentDir = line.Substring(5);
+                        currentDirSize = 0;
+                        dirs.Push(new Pair<string, int>(currentDir, currentDirSize));
+                    }
+                }
+                else if (line.StartsWith("$ ls"))
+                {
+                    continue;
+                }
+                else if (line.StartsWith("dir "))
+                {
+                    continue;
+                }
+                else
+                {
+                    // It's a file with a size.
+                    currentDirSize += int.Parse(line.Split(' ')[0]);
+                }
+            }
+
+            // Pop any remaining dirs off the stack, i.e. go back up to root.
+            while (dirs.Any())
+            {
+                if (dirs.Count > 0)
+                {
+                    // When changing dir (up or down) set the size of the current dir first to whatever the sum of the file sizes is.
+                    dirs.Peek().Item2 = currentDirSize;
+                }
+
+                ChangeDirUp();
+
+                if (dirs.Count > 0)
+                {
+                    currentDirSize = dirs.Peek().Item2;
+                }
+            }
+
+            return totalSizeOfDirsAtMost100k.ToString();
+
+            void ChangeDirUp()
+            {
+                // Pop the current directory off the stack.
+                dirs.Pop();
+
+                // Add currrent dir size to it's parent directory when going back up to it
+                if (dirs.Any())
+                {
+                    dirs.Peek().Item2 += currentDirSize;
+                }
+
+                // If the current dir size (which we just popped off the stack) is small enough, add it to the total count.
+                if (currentDirSize <= 100000)
+                {
+                    totalSizeOfDirsAtMost100k += currentDirSize;
+                }
+            }
         }
 
         public static string Day6(int uniqueCharsRequired)
