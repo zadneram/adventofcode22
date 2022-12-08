@@ -13,9 +13,235 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            string result = Day7_Part2();
+            string result = Day8_Part2();
             Console.WriteLine(result);
             Console.ReadKey();
+        }
+
+        public static string Day8_Part2()
+        {
+            int[,] grid = Day8_GenerateGrid(out int squareSize);
+
+            int CalcTreeScenicScore(int x, int y, int treeHeight)
+            {
+                int scenicScore = 1;
+
+                // Look up
+                int upScore = 0;
+                for (int up = y - 1; up >= 0; up--)
+                {
+                    upScore++;
+
+                    if (grid[x, up] >= treeHeight)
+                    {
+                        break;
+                    }
+                }
+
+                scenicScore *= upScore;
+
+                // Look down
+                int downScore = 0;
+                for (int down = y + 1; down < squareSize; down++)
+                {
+                    downScore++;
+
+                    if (grid[x, down] >= treeHeight)
+                    {
+                        break;
+                    }
+                }
+
+                scenicScore *= downScore;
+
+                // Look left
+                int leftScore = 0;
+                for (int left = x - 1; left >= 0; left--)
+                {
+                    leftScore++;
+
+                    if (grid[left, y] >= treeHeight)
+                    {
+                        break;
+                    }
+                }
+
+                scenicScore *= leftScore;
+
+                // Look right
+                int rightScore = 0;
+                for (int right = x + 1; right < squareSize; right++)
+                {
+                    rightScore++;
+
+                    if (grid[right, y] >= treeHeight)
+                    {
+                        break;
+                    }
+                }
+
+                scenicScore *= rightScore;
+
+                return scenicScore;
+            }
+
+            int maxScenicScore = 0;
+            for (int x = 0; x < squareSize; x++)
+            {
+                for (int y = 0; y < squareSize; y++)
+                {
+                    // Is it an edge tree?
+                    if (x == 0 || y == 0 || x == squareSize - 1 || y == squareSize - 1)
+                    {
+                        // Will have scenic score = 0 so ignore.
+                        continue;
+                    }
+                    else
+                    {
+                        // Not an edge tree.
+                        int treeHeight = grid[x, y];
+                        int treeScenicScore = CalcTreeScenicScore(x, y, treeHeight);
+                        if (treeScenicScore > maxScenicScore)
+                        {
+                            maxScenicScore = treeScenicScore;
+                        }
+                    }
+                }
+            }
+
+            return maxScenicScore.ToString();
+        }
+
+        public static int[,] Day8_GenerateGrid(out int squareSize)
+        {
+            squareSize = 0;
+            int[,] grid = null;
+            int lineNo = 0;
+            //foreach (string line in Utilities.GetInputFromFile(day: 8, example: true))
+            foreach (string line in Utilities.GetInputForDay(8))
+            {
+                if (lineNo == 0)
+                {
+                    squareSize = line.Length;
+                    grid = new int[squareSize, squareSize];
+                }
+
+                for (int i = 0; i < squareSize; i++)
+                {
+                    grid[i, lineNo] = int.Parse(line[i].ToString());
+                }
+
+                lineNo++;
+            }
+
+            return grid;
+        }
+
+        public static string Day8_Part1()
+        {
+            int[,] grid = Day8_GenerateGrid(out int squareSize);
+
+            bool IsTreeVisibleFromAnyEdge(int x, int y, int treeHeight)
+            {
+                for (int left = 0; left < squareSize; left++)
+                {
+                    if (left == x)
+                    {
+                        return true;
+                    }
+
+                    if (grid[left, y] < treeHeight)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        // There is a tree with the same or greater height hiding this tree from the left.
+                        break;
+                    }
+                }
+
+                for (int right = squareSize - 1; right >= 0; right--)
+                {
+                    if (right == x)
+                    {
+                        return true;
+                    }
+
+                    if (grid[right, y] < treeHeight)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        // There is a tree with the same or greater height hiding this tree from the right.
+                        break;
+                    }
+                }
+
+                for (int top = 0; top < squareSize; top++)
+                {
+                    if (top == y)
+                    {
+                        return true;
+                    }
+
+                    if (grid[x, top] < treeHeight)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        // There is a tree with the same or greater height hiding this tree from the top.
+                        break;
+                    }
+                }
+
+                for (int bottom = squareSize - 1; bottom >= 0; bottom--)
+                {
+                    if (bottom == y)
+                    {
+                        return true;
+                    }
+
+                    if (grid[x, bottom] < treeHeight)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        // There is a tree with the same or greater height hiding this tree from the bottom.
+                        break;
+                    }
+                }
+
+                return false;
+            }
+
+            int visibleTreeCount = 0;
+            for (int x = 0; x < squareSize; x++)
+            {
+                for (int y = 0; y < squareSize; y++)
+                {
+                    // Is it an edge tree?
+                    if (x == 0 || y == 0 || x == squareSize-1 || y == squareSize-1)
+                    {
+                        visibleTreeCount++;
+                    }
+                    else
+                    {
+                        // Not an edge tree.
+                        int treeHeight = grid[x, y];
+                        if (IsTreeVisibleFromAnyEdge(x, y, treeHeight))
+                        {
+                            visibleTreeCount++;
+                        }
+                    }
+                }
+            }
+
+            return visibleTreeCount.ToString();
+
         }
 
         public static string Day7_Part2()
