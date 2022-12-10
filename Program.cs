@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,9 +14,107 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            string result = Day8_Part2();
+            string result = Day10_Part2();
             Console.WriteLine(result);
             Console.ReadKey();
+        }
+
+        public static string Day10_Part2()
+        {
+            int register = 1;
+            int cycles = 0;
+
+            void PrintPixel()
+            {
+                int printPixelAt = (cycles - 1) % 40;
+                int pixelMatchSprite = Math.Abs(register - printPixelAt);
+                if (pixelMatchSprite == 0 || pixelMatchSprite == 1)
+                {
+                    Console.Write('#');
+                }
+                else
+                {
+                    Console.Write(".");
+                }
+
+                if (cycles % 40 == 0)
+                {
+                    Console.WriteLine();
+                }
+            }
+
+            int lineNo = 0;
+            //foreach (var line in Utilities.GetInputFromFile(day: 10, example: true))
+            foreach (var line in Utilities.GetInputForDay(10))
+            {
+                lineNo++;
+
+                if (line == "noop")
+                {
+                    cycles++;
+                    PrintPixel();
+                    continue;
+                }
+                else if (line.StartsWith("addx"))
+                {
+                    int value = int.Parse(line.Split(' ')[1]);
+
+                    // First cycle
+                    cycles++;
+                    PrintPixel();
+
+                    // Second cycle
+                    cycles++;
+                    PrintPixel();
+                    register += value;
+                }
+            }
+
+            return String.Empty;
+        }
+
+        public static string Day10_Part1()
+        {
+            int register = 1;
+            int cycles = 0;
+            int signalStrength = 0;
+
+            void CheckForKeyCycle()
+            {
+                if ((cycles - 20) % 40 == 0)
+                {
+                    signalStrength += (cycles * register);
+                }
+            }
+
+            int lineNo = 0;
+            //foreach (var line in Utilities.GetInputFromFile(day: 10, example: true))
+            foreach (var line in Utilities.GetInputForDay(10))
+            {
+                lineNo++;
+
+                if (line == "noop")
+                {
+                    cycles++;
+                    CheckForKeyCycle();
+                    continue;
+                }
+                else if (line.StartsWith("addx"))
+                {
+                    int value = int.Parse(line.Split(' ')[1]);
+                    
+                    // First cycle
+                    cycles++;
+                    CheckForKeyCycle();
+
+                    // Second cycle
+                    cycles++;
+                    CheckForKeyCycle();
+                    register += value;
+                }
+            }
+
+            return signalStrength.ToString();
         }
 
         public static string Day8_Part2()
