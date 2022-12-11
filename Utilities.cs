@@ -38,9 +38,9 @@ namespace AdventOfCode2022
             }
         }
 
-        public static IEnumerable<string> GetInputFromFile(int day, bool example = true)
+        public static IEnumerable<string> GetInputFromFile(int day, bool example = true, int part = 1)
         {
-            using (FileStream fs = System.IO.File.OpenRead($@".\Day{day}{(example ? "Ex" : String.Empty)}.txt"))
+            using (FileStream fs = System.IO.File.OpenRead($@".\Day{day}{(part == 2 ? "Part2" : String.Empty)}{(example ? "Ex" : String.Empty)}.txt"))
             {
                 using (StreamReader sr = new StreamReader(fs))
                 {

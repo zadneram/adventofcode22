@@ -13,9 +13,303 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            string result = Day8_Part2();
+            string result = Day9_Part2();
             Console.WriteLine(result);
             Console.ReadKey();
+        }
+
+        public static void MoveKnotsUp(Pair<int, int> lead, Pair<int, int> trail)
+        {
+            // Only move tail if it's y coord is two spaces different to the head
+            int yDelta = lead.y - trail.y;
+            if (yDelta >= 2)
+            {
+                // Move tail towards head
+                trail.y += yDelta - 1;
+
+                // If the x coord is different, move it one space nearer
+                // Math.Sign return -1 (left), 0 (no move), 1 (right) regardless of how many spaces between x coords.
+                int xDelta = Math.Sign(lead.x - trail.x);
+                trail.x += xDelta;
+            }
+        }
+
+        public static void MoveKnotsDown(Pair<int, int> lead, Pair<int, int> trail)
+        {
+            // Only move tail if it's y coord is two spaces different to the head
+            int yDelta = lead.y - trail.y;
+            if (yDelta <= -2)
+            {
+                // Move tail towards head
+                trail.y += yDelta + 1;
+
+                // If the x coord is different, move it one space nearer
+                // Math.Sign return -1 (left), 0 (no move), 1 (right) regardless of how many spaces between x coords.
+                int xDelta = Math.Sign(lead.x - trail.x);
+                trail.x += xDelta;
+            }
+        }
+
+        public static void MoveKnotsLeft(Pair<int, int> lead, Pair<int, int> trail)
+        {
+            // Only move tail if it's x coord is two spaces different to the head
+            int xDelta = lead.x - trail.x;
+            if (xDelta <= -2)
+            {
+                // Move tail towards head
+                trail.x += xDelta + 1;
+
+                // If the y coord is different, move it one space nearer
+                // Math.Sign return -1 (down), 0 (no move), 1 (up) regardless of how many spaces between y coords.
+                int yDelta = Math.Sign(lead.y - trail.y);
+                trail.y += yDelta;
+            }
+        }
+
+        public static void MoveKnotsRight(Pair<int, int> lead, Pair<int, int> trail)
+        {
+            // Only move tail if it's x coord is two spaces different to the head
+            int xDelta = lead.x - trail.x;
+            if (xDelta >= 2)
+            {
+                // Move tail towards head
+                trail.x += xDelta - 1;
+
+                // If the y coord is different, move it one space nearer
+                // Math.Sign return -1 (down), 0 (no move), 1 (up) regardless of how many spaces between y coords.
+                int yDelta = Math.Sign(lead.y - trail.y);
+                trail.y += yDelta;
+            }
+        }
+
+        public static string Day9_Part2()
+        {
+            List<Pair<int, int>> knots = new List<Pair<int, int>>(10);
+            for (int i = 0; i < 10; i++)
+            {
+                knots.Add(new Pair<int, int>(0, 0));
+            }
+
+            var head = knots[0];
+            var tail = knots[9];
+
+            List<Pair<int, int>> tailPositions = new List<Pair<int, int>>() { new Pair<int, int>(0, 0) };
+
+            void PrintRope()
+            {
+                for (int y = 4; y >= 0; y--)
+                {
+                    for (int x = 0; x < 6; x++)
+                    {
+                        int knotAtCoord = knots.FindIndex(p => p.Equals(new Pair<int, int>(x, y)));
+                        if (knotAtCoord != -1)
+                        {
+                            Console.Write($"{(knotAtCoord == 0 ? "H" : knotAtCoord.ToString())}");
+                        }
+                        else
+                        {
+                            Console.Write(".");
+                        }
+                    }
+
+                    Console.WriteLine();
+                }
+
+                Console.WriteLine();
+            }
+
+            string lastLine;
+            foreach (string line in Utilities.GetInputForDay(9))
+            //foreach (string line in Utilities.GetInputFromFile(day: 9, example: true, part: 2))
+            {
+                lastLine = line;
+                var move = line.Split(' ');
+                string direction = move[0];
+                int noOfSpaces = int.Parse(move[1]);
+
+                //Console.WriteLine();
+                //Console.WriteLine();
+
+                if (direction == "U")
+                {
+                    int destinationY = head.y + noOfSpaces;
+                    for (int j = head.y + 1; j <= destinationY; j++)
+                    {
+                        head.y = j;
+
+                        for (int l = 0; l < 9; l++)
+                        {
+                            MoveKnotsUp(knots[l], knots[l + 1]);
+                            MoveKnotsDown(knots[l], knots[l + 1]);
+                            MoveKnotsLeft(knots[l], knots[l + 1]);
+                            MoveKnotsRight(knots[l], knots[l + 1]);
+                        }
+
+                        //PrintRope();
+                        tailPositions.Add(new Pair<int, int>(knots[9].x, knots[9].y));
+                    }
+                }
+                else if (direction == "D")
+                {
+                    int destinationY = head.y - noOfSpaces;
+                    for (int j = head.y - 1; j >= destinationY; j--)
+                    {
+                        head.y = j;
+
+                        for (int l = 0; l < 9; l++)
+                        {
+                            MoveKnotsDown(knots[l], knots[l + 1]);
+                            MoveKnotsUp(knots[l], knots[l + 1]);
+                            MoveKnotsLeft(knots[l], knots[l + 1]);
+                            MoveKnotsRight(knots[l], knots[l + 1]);
+                        }
+
+                        //PrintRope();
+                        tailPositions.Add(new Pair<int, int>(knots[9].x, knots[9].y));
+                    }
+                }
+                else if (direction == "L")
+                {
+                    int destinationX = head.x - noOfSpaces;
+                    for (int i = head.x - 1; i >= destinationX; i--)
+                    {
+                        head.x = i;
+
+                        for (int k = 0; k < 9; k++)
+                        {
+                            MoveKnotsLeft(knots[k], knots[k + 1]);
+                            MoveKnotsRight(knots[k], knots[k + 1]);
+                            MoveKnotsUp(knots[k], knots[k + 1]);
+                            MoveKnotsDown(knots[k], knots[k + 1]);
+                        }
+
+                        //PrintRope();
+                        tailPositions.Add(new Pair<int, int>(knots[9].x, knots[9].y));
+                    }
+                }
+                else if (direction == "R")
+                {
+                    int destinationX = head.x + noOfSpaces;
+                    for (int i = head.x + 1; i <= destinationX; i++)
+                    {
+                        head.x = i;
+
+                        for (int k = 0; k < 9; k++)
+                        {
+                            MoveKnotsRight(knots[k], knots[k + 1]);
+                            MoveKnotsLeft(knots[k], knots[k + 1]);
+                            MoveKnotsUp(knots[k], knots[k + 1]);
+                            MoveKnotsDown(knots[k], knots[k + 1]);
+                        }
+
+                        //PrintRope();
+                        tailPositions.Add(new Pair<int, int>(knots[9].x, knots[9].y));
+                    }
+                }
+            }
+
+            return tailPositions.Distinct().Count().ToString();
+        }
+
+        public static string Day9_Part1()
+        {
+            var currentHeadPos = (x: 0, y: 0);
+            var currentTailPos = (x: 0, y: 0);
+            List<(int, int)> tailPositions = new List<(int, int)>() { currentTailPos };
+            //foreach (string line in Utilities.GetInputFromFile(day: 9, example: true))
+            foreach (string line in Utilities.GetInputForDay(9))
+            {
+                var move = line.Split(' ');
+                string direction = move[0];
+                int noOfSpaces = int.Parse(move[1]);
+
+                if (direction == "L")
+                {
+                    int destinationX = currentHeadPos.x - noOfSpaces;
+                    for (int i = currentHeadPos.x - 1; i >= destinationX; i--)
+                    {
+                        currentHeadPos = (x: i, y: currentHeadPos.y);
+
+                        // Only move tail if it's x coord is two spaces different to the head
+                        if (Math.Abs(currentHeadPos.x - currentTailPos.x) == 2)
+                        {
+                            // Move tail towards head
+                            int newTailx = currentTailPos.x - 1;
+
+                            // Move diagonally if needed by moving to the same y coord as the head
+                            int newTaily = currentHeadPos.y == currentTailPos.y ? currentTailPos.y : currentHeadPos.y;
+
+                            currentTailPos = (x: newTailx, y: newTaily);
+                            tailPositions.Add(currentTailPos);
+                        }
+                    }
+                }
+                else if (direction == "R")
+                {
+                    int destinationX = currentHeadPos.x + noOfSpaces;
+                    for (int i = currentHeadPos.x + 1; i <= destinationX; i++)
+                    {
+                        currentHeadPos = (x: i, y: currentHeadPos.y);
+
+                        // Only move tail if it's x coord is two spaces different to the head
+                        if (Math.Abs(currentHeadPos.x - currentTailPos.x) == 2)
+                        {
+                            // Move tail towards head
+                            int newTailx = currentTailPos.x + 1;
+
+                            // Move diagonally if needed by moving to the same y coord as the head
+                            int newTaily = currentHeadPos.y == currentTailPos.y ? currentTailPos.y : currentHeadPos.y;
+
+                            currentTailPos = (x: newTailx, y: newTaily);
+                            tailPositions.Add(currentTailPos);
+                        }
+                    }
+                }
+                else if (direction == "U")
+                {
+                    int destinationY = currentHeadPos.y + noOfSpaces;
+                    for (int j = currentHeadPos.y + 1; j <= destinationY; j++)
+                    {
+                        currentHeadPos = (x: currentHeadPos.x, y: j);
+
+                        // Only move tail if it's y coord is two spaces different to the head
+                        if (Math.Abs(currentHeadPos.y - currentTailPos.y) == 2)
+                        {
+                            // Move tail towards head
+                            int newTaily = currentTailPos.y + 1;
+
+                            // Move diagonally if needed by moving to the same y coord as the head
+                            int newTailx = currentHeadPos.x == currentTailPos.x ? currentTailPos.x : currentHeadPos.x;
+
+                            currentTailPos = (x: newTailx, y: newTaily);
+                            tailPositions.Add(currentTailPos);
+                        }
+                    }
+                }
+                else if (direction == "D")
+                {
+                    int destinationY = currentHeadPos.y - noOfSpaces;
+                    for (int j = currentHeadPos.y - 1; j >= destinationY; j--)
+                    {
+                        currentHeadPos = (x: currentHeadPos.x, y: j);
+
+                        // Only move tail if it's y coord is two spaces different to the head
+                        if (Math.Abs(currentHeadPos.y - currentTailPos.y) == 2)
+                        {
+                            // Move tail towards head
+                            int newTaily = currentTailPos.y - 1;
+
+                            // Move diagonally if needed by moving to the same y coord as the head
+                            int newTailx = currentHeadPos.x == currentTailPos.x ? currentTailPos.x : currentHeadPos.x;
+
+                            currentTailPos = (x: newTailx, y: newTaily);
+                            tailPositions.Add(currentTailPos);
+                        }
+                    }
+                }
+            }
+
+            return tailPositions.Distinct().Count().ToString();
         }
 
         public static string Day8_Part2()
@@ -224,7 +518,7 @@ namespace AdventOfCode2022
                 for (int y = 0; y < squareSize; y++)
                 {
                     // Is it an edge tree?
-                    if (x == 0 || y == 0 || x == squareSize-1 || y == squareSize-1)
+                    if (x == 0 || y == 0 || x == squareSize - 1 || y == squareSize - 1)
                     {
                         visibleTreeCount++;
                     }
@@ -241,7 +535,6 @@ namespace AdventOfCode2022
             }
 
             return visibleTreeCount.ToString();
-
         }
 
         public static string Day7_Part2()
@@ -493,7 +786,7 @@ namespace AdventOfCode2022
 
                 for (int j = cratesToMove.Count; j > 0; j--)
                 {
-                    stacks[to].Push(cratesToMove[j-1]);
+                    stacks[to].Push(cratesToMove[j - 1]);
                 }
             }
         }
